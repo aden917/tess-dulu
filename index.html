@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Ucup Si AI — Final</title>
+
+<!-- Highlight.js -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+<style>
+:root{
+  --bg1:#001226; --bg2:#002f5b; --accent:#4dd0f0; --glass: rgba(255,255,255,0.04);
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Arial;}
+body{
+  background: linear-gradient(120deg,var(--bg1),var(--bg2));
+  background-size:400% 400%;
+  animation:moveBg 16s ease infinite;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#e6f9ff;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+@keyframes moveBg{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+
+/* Card */
+.card{
+  width:100%;
+  max-width:980px;
+  height:82vh;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-radius:14px;
+  box-shadow:0 20px 60px rgba(0,0,0,0.6);
+  display:grid;
+  grid-template-rows:auto 1fr auto;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,0.03);
+}
+
+/* header */
+.header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:14px 18px;
+  gap:12px;
+  border-bottom:1px solid rgba(255,255,255,0.02);
+  backdrop-filter: blur(6px);
+}
+.brand{display:flex;gap:12px;align-items:center;color:var(--accent);font-weight:700}
+.brand img{width:36px;height:36px}
+.header-actions{display:flex;gap:10px;align-items:center}
+.btn{background:transparent;border:1px solid rgba(255,255,255,0.04);color:inherit;padding:8px 12px;border-radius:999px;cursor:pointer;font-weight:600}
+.btn.primary{background:var(--accent);color:#00121a;border:none}
+.btn.warn{background:#ff7171;color:#1a0000;border:none}
+
+/* body */
+.body{
+  display:flex;
+  gap:18px;
+  padding:18px;
+  height:100%;
+}
+
+/* chat column */
+.left{flex:1;display:flex;flex-direction:column;gap:12px}
+.chat-window{
+  flex:1;
+  background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+  padding:18px;border-radius:10px;overflow:auto;display:flex;flex-direction:column;gap:12px;
+  scroll-behavior:smooth;
+}
+.msg{max-width:78%;padding:12px 14px;border-radius:12px;box-shadow:0 8px 20px rgba(2,9,23,0.5);word-break:break-word;white-space:pre-wrap}
+.msg.ai{align-self:flex-start;background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.02);color:#dff9ff}
+.msg.user{align-self:flex-end;background:var(--accent);color:#00121a;border-bottom-right-radius:6px}
+.meta{font-size:12px;opacity:0.7;margin-bottom:6px}
+
+/* composer */
+.composer{display:flex;gap:10px;align-items:center}
+.input-wrap{flex:1;display:flex;background:var(--glass);padding:8px;border-radius:999px;border:1px solid rgba(255,255,255,0.02)}
+.input-wrap input{flex:1;border:none;background:transparent;color:inherit;padding:10px 8px;font-size:15px;outline:none}
+.send-circle{width:48px;height:48px;border-radius:50%;border:none;background:var(--accent);color:#00121a;font-weight:800;cursor:pointer;display:grid;place-items:center;box-shadow:0 6px 18px rgba(3,92,119,0.18)}
+
+/* right panel */
+.right{width:300px;display:flex;flex-direction:column;gap:12px}
+.panel{background:rgba(255,255,255,0.02);padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.02)}
+.panel h4{margin:0 0 8px 0;color:var(--accent)}
+
+/* code block */
+pre.hljs{padding:12px;border-radius:8px;position:relative;overflow:auto;margin:8px 0;background:rgba(2,6,23,0.6)}
+.copyBtn{position:absolute;right:8px;top:8px;background:var(--accent);border:none;color:#00121a;padding:6px 8px;border-radius:6px;cursor:pointer;font-weight:700}
+
+/* modal */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:grid;place-items:center;z-index:120}
+.modal{width:360px;background:linear-gradient(180deg,#031126,#07243b);padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
+.option{display:flex;align-items:center;gap:12px;padding:10px;border-radius:8px;margin:8px 0;cursor:pointer;border:1px solid transparent}
+.option:hover{background:rgba(255,255,255,0.02)}
+.small{font-size:13px;color:#cfeffb;opacity:0.9}
+
+/* misc */
+footer{padding:10px;text-align:center;color:rgba(255,255,255,0.6);font-size:13px}
+@media(max-width:980px){.right{display:none}.card{height:100vh;width:100%;border-radius:0}}
+</style>
+</head>
+<body>
+
+<div class="card" role="application" aria-label="Ucup Si AI">
+  <div class="header">
+    <div class="brand">
+      <img src="https://img.icons8.com/ios-filled/50/4dd0f0/artificial-intelligence.png" alt="ai">
+      <div>Ucup Si AI</div>
+    </div>
+    <div class="header-actions">
+      <button id="clearBtn" class="btn warn" title="Hapus riwayat">🗑 Hapus</button>
+      <button id="prefsBtn" class="btn" title="Pengaturan">⚙️</button>
+    </div>
+  </div>
+
+  <div class="body">
+    <div class="left">
+      <div id="chatWindow" class="chat-window" role="log" aria-live="polite"></div>
+
+      <div class="composer">
+        <div class="input-wrap" role="search">
+          <input id="userInput" placeholder="Tanya sesuatu ke Ucup..." aria-label="Tanya Ucup">
+        </div>
+        <button id="sendBtn" class="send-circle" title="Kirim">➤</button>
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="panel">
+        <h4>Contoh Cepat</h4>
+        <div class="small">Contoh interaksi acak akan muncul saat pertama buka.</div>
+      </div>
+      <div class="panel">
+        <h4>Notifikasi</h4>
+        <div class="small">Atur suara notifikasi melalui tombol ⚙️ (bisa preview).</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>Ucup Si AI • Tema hitam–biru • Mirip Gemini</footer>
+</div>
+
+<!-- modal -->
+<div id="modal" class="modal-backdrop" style="display:none;">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <h3 id="modalTitle" style="color:var(--accent);margin:0 0 8px 0">Aktifkan notifikasi suara?</h3>
+    <p class="small">Pilih apakah ingin ada bunyi saat jawaban selesai. Kamu bisa preview suaranya.</p>
+
+    <div class="option" data-val="0" id="opt0"><input type="radio" name="notif" checked /> <div><b>Jangan aktifkan</b><div class="small">Tanpa suara notifikasi</div></div></div>
+
+    <div class="option" data-val="1" id="opt1" style="justify-content:space-between">
+      <div style="display:flex;gap:12px;align-items:center"><input type="radio" name="notif" /> <div><b>Aktifkan — Lembut (Ding)</b><div class="small">Suara notifikasi lembut</div></div></div>
+      <button id="previewDing" class="btn">Preview</button>
+    </div>
+
+    <div class="option" data-val="2" id="opt2" style="justify-content:space-between">
+      <div style="display:flex;gap:12px;align-items:center"><input type="radio" name="notif" /> <div><b>Aktifkan — Futuristik</b><div class="small">Suara notifikasi sci-fi</div></div></div>
+      <button id="previewSci" class="btn">Preview</button>
+    </div>
+
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+      <button id="saveNotif" class="btn primary">Simpan</button>
+      <button id="closeModal" class="btn">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- audio -->
+<audio id="typeClick" src="https://www.soundjay.com/buttons/sounds/button-16.mp3" preload="auto"></audio>
+<audio id="notifDing" src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3" preload="auto"></audio>
+<audio id="notifSci" src="https://www.soundjay.com/button/sounds/button-10.mp3" preload="auto"></audio>
+
+<script>
+/* =========================
+   CONFIG (API key embedded as requested)
+   ========================= */
+const API_KEY = "AIzaSyAZxp86TiAAoUzMr5s72Ia8PBZLOCRN-tQ"; // your key (in-file)
+const MODEL = "gemini-1.5-flash"; // model
+const STORAGE_KEY = "ucup_final_history_v1";
+const PREF_KEY = "ucup_final_notify_v1";
+
+/* System prompt & example JSON */
+const SYSTEM_PROMPT = `Kamu adalah "Ucup Si AI", asisten AI responsif, ramah, komunikatif, mirip Gemini/ChatGPT.
+- Gunakan bahasa santai tapi jelas.
+- Jawab langsung ke inti; berikan detail jika diminta.
+- Jika diminta data terstruktur: jawab hanya dengan JSON rapi.
+Contoh JSON:
+{
+  "status":"success",
+  "response": {"title":"Sejarah Internet", "summary":"Internet berkembang dari ARPANET (1969) hingga jaringan global sekarang"}
+}`;
+
+/* UI refs */
+const chatWindow = document.getElementById('chatWindow');
+const userInput = document.getElementById('userInput');
+const sendBtn = document.getElementById('sendBtn');
+const clearBtn = document.getElementById('clearBtn');
+const prefsBtn = document.getElementById('prefsBtn');
+const modal = document.getElementById('modal');
+const saveNotif = document.getElementById('saveNotif');
+const closeModal = document.getElementById('closeModal');
+const previewDing = document.getElementById('previewDing');
+const previewSci = document.getElementById('previewSci');
+const typeClick = document.getElementById('typeClick');
+const notifDing = document.getElementById('notifDing');
+const notifSci = document.getElementById('notifSci');
+
+let notifyPref = localStorage.getItem(PREF_KEY) || null;
+let inFlight = false;
+
+/* Examples (6 sets) */
+const EXAMPLES = [
+  [
+    {role:'user', text:'Halo Ucup! Bisa kasih ide bisnis kreatif untuk anak muda?'},
+    {role:'ai', text:`💡 Yuk! 3 ide bisnis kreatif 2025:\n{\n  "1":"Jasa pembuatan AI Avatar untuk kreator",\n  "2":"Kafe + co-working retro-futuristik",\n  "3":"Konsultasi personal branding berbasis AI"\n}`}
+  ],
+  [
+    {role:'user', text:'Ucup, resep minuman unik dong!'},
+    {role:'ai', text:`🍹 Resep "Blue Galaxy Soda":\n{\n  "Bahan":["Soda","Sirup blueberry","Es biru","Edible glitter"],\n  "Cara":"Campur semua bahan, sajikan dingin"\n}`}
+  ],
+  [
+    {role:'user', text:'Fakta unik tentang luar angkasa?'},
+    {role:'ai', text:`🌌 Fakta unik:\n{\n  "Fakta":"Terdapat awan alkohol raksasa di beberapa wilayah galaksi (bukan untuk diminum)"\n}`}
+  ],
+  [
+    {role:'user', text:'Tips produktivitas buat mahasiswa?'},
+    {role:'ai', text:`📚 Tips produktivitas:\n{\n  "1":"Teknik Pomodoro 25/5",\n  "2":"Tuliskan 3 prioritas harian",\n  "3":"Istirahat teratur"\n}`}
+  ],
+  [
+    {role:'user', text:'Ada fakta unik tentang hewan?'},
+    {role:'ai', text:`🐧 Fakta hewan:\n{\n  "Fakta":"Beberapa spesies penguin dapat menyelam sangat dalam dalam mencari makan"\n}`}
+  ],
+  [
+    {role:'user', text:'Tren teknologi terbaru apa ya?'},
+    {role:'ai', text:`📱 Tren 2025:\n{\n  "1":"AI kesehatan mental",\n  "2":"Wearable biofeedback",\n  "3":"Robot rumah tangga cerdas"\n}`}
+  ]
+];
+
+/* Utils */
+function looksLikeJSON(s){
+  const t = s.trim();
+  return (t.startsWith('{') && t.endsWith('}')) || (t.startsWith('[') && t.endsWith(']'));
+}
+function saveHistory(){
+  const items = Array.from(chatWindow.querySelectorAll('.msg')).map(m=>{
+    return {role: m.classList.contains('user') ? 'user' : 'ai', text: m.dataset.raw || m.textContent};
+  });
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+}
+function loadHistory(){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return false;
+  try{
+    const arr = JSON.parse(raw);
+    arr.forEach(it=>renderMessage(it.role, it.text, false));
+    return true;
+  }catch(e){
+    return false;
+  }
+}
+
+/* Render: if JSON-like, use code block with highlight + copy */
+function renderMessage(role, text, save=true){
+  const el = document.createElement('div');
+  el.className = 'msg ' + (role==='user' ? 'user' : 'ai');
+  el.dataset.raw = text;
+
+  if (looksLikeJSON(text) || /```json/.test(text)){
+    const content = text.replace(/```json|```/g,'').trim();
+    const pre = document.createElement('pre');
+    const code = document.createElement('code');
+    code.className = 'json hljs';
+    code.textContent = content;
+    pre.appendChild(code);
+
+    const btn = document.createElement('button');
+    btn.className = 'copyBtn';
+    btn.textContent = 'Copy';
+    btn.onclick = async ()=>{
+      await navigator.clipboard.writeText(content);
+      btn.textContent = 'Copied!';
+      setTimeout(()=>btn.textContent='Copy',1500);
+    };
+    pre.appendChild(btn);
+    el.appendChild(pre);
+    chatWindow.appendChild(el);
+    hljs.highlightElement(code);
+  } else {
+    const p = document.createElement('div');
+    p.className = 'text';
+    p.textContent = text;
+    el.appendChild(p);
+    chatWindow.appendChild(el);
+  }
+  chatWindow.scrollTop = chatWindow.scrollHeight;
+  if (save) saveHistory();
+}
+
+/* Typewriter for AI replies with click sound per-char */
+function typewriter(role, text, speed=16, onDone){
+  const el = document.createElement('div');
+  el.className = 'msg ' + (role==='user' ? 'user' : 'ai');
+  const txt = document.createElement('div');
+  txt.className = 'text';
+  el.appendChild(txt);
+  chatWindow.appendChild(el);
+  chatWindow.scrollTop = chatWindow.scrollHeight;
+
+  let i = 0;
+  function step(){
+    if (i < text.length){
+      const ch = text.charAt(i);
+      txt.textContent += ch;
+      if (ch !== ' ') { try{ typeClick.currentTime = 0; typeClick.play().catch(()=>{}); }catch(e){} }
+      i++;
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+      setTimeout(step, speed);
+    } else {
+      if (looksLikeJSON(txt.textContent)){
+        // replace with highlighted code block
+        const content = txt.textContent.replace(/```json|```/g,'').trim();
+        el.innerHTML = '';
+        const pre = document.createElement('pre');
+        const code = document.createElement('code');
+        code.className = 'json hljs';
+        code.textContent = content;
+        pre.appendChild(code);
+        const btn = document.createElement('button');
+        btn.className = 'copyBtn';
+        btn.textContent = 'Copy';
+        btn.onclick = async ()=>{ await navigator.clipboard.writeText(content); btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy',1500); };
+        pre.appendChild(btn);
+        el.appendChild(pre);
+        hljs.highlightElement(code);
+      }
+      saveHistory();
+      if (typeof onDone === 'function') onDone();
+    }
+  }
+  step();
+  return el;
+}
+
+/* Fallback generator (Gemini-style) */
+function generateFallback(prompt){
+  const intro = `Maaf — layanan eksternal sedang tidak tersedia. Aku (Ucup Si AI) tetap akan bantu menjawab sebaik mungkin:\n\n`;
+  const summary = `Topik: ${prompt}\n\nRingkasan singkat:\n- Inti: ${prompt.length>80 ? prompt.slice(0,80)+'...' : prompt}\n\nPenjelasan:\n- Jelaskan inti topik secara ringkas dan jelas.\n- Berikan 2-3 langkah praktis atau contoh jika relevan.\n\nSaran lanjutan:\n- Jika ingin jawaban lebih rinci, minta "Perinci".\n`;
+  return intro + summary;
+}
+
+/* Call Gemini API (browser) */
+async function callGemini(userText){
+  const body = {
+    contents: [
+      { role: "user", parts: [{ text: SYSTEM_PROMPT + "\nUser: " + userText }] }
+    ]
+  };
+  try{
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(body)
+    });
+    if (!res.ok){
+      const t = await res.text();
+      throw new Error(`HTTP ${res.status}: ${t}`);
+    }
+    const json = await res.json();
+    return json;
+  }catch(e){
+    return { __error:true, message: String(e) };
+  }
+}
+
+/* Show random example sequence */
+function showRandomExample(){
+  const idx = Math.floor(Math.random() * EXAMPLES.length);
+  const seq = EXAMPLES[idx];
+  let delay = 200;
+  seq.forEach((m,i)=>{
+    setTimeout(()=>{
+      if (m.role === 'user') renderMessage('user', m.text);
+      else typewriter('ai', m.text, 10, ()=>{});
+    }, delay);
+    delay += (m.role === 'user') ? 500 : Math.max(700, m.text.length * 8);
+  });
+}
+
+/* Save notif pref */
+function saveNotifPref(val){
+  notifyPref = String(val);
+  localStorage.setItem(PREF_KEY, notifyPref);
+}
+
+/* Play notification sound */
+function playNotifSound(){
+  try{
+    if (notifyPref === '1'){ notifDing.currentTime = 0; notifDing.play().catch(()=>{}); }
+    else if (notifyPref === '2'){ notifSci.currentTime = 0; notifSci.play().catch(()=>{}); }
+  }catch(e){}
+}
+
+/* UI events */
+prefsBtn.addEventListener('click', openModal);
+clearBtn.addEventListener('click', ()=>{
+  if (confirm('Hapus riwayat chat?')){ localStorage.removeItem(STORAGE_KEY); chatWindow.innerHTML=''; }
+});
+document.querySelectorAll('.option').forEach(o=> o.addEventListener('click', (e)=>{
+  document.querySelectorAll('.option input').forEach(i=>i.checked=false);
+  const input = o.querySelector('input');
+  if (input) input.checked = true;
+  modal.dataset.selected = o.dataset.val;
+}));
+
+previewDing?.addEventListener('click', ()=>{ notifDing.currentTime=0; notifDing.play().catch(()=>{}); });
+previewSci?.addEventListener('click', ()=>{ notifSci.currentTime=0; notifSci.play().catch(()=>{}); });
+
+saveNotif?.addEventListener('click', ()=>{
+  const sel = modal.dataset.selected ?? '0';
+  saveNotifPref(sel);
+  closeModal();
+  if (!loadHistory()) showRandomExample();
+});
+closeModal?.addEventListener('click', ()=>{
+  if (!notifyPref) saveNotifPref('0');
+  closeModal();
+  if (!loadHistory()) showRandomExample();
+});
+
+function openModal(){ modal.style.display='grid'; // set radios
+  const cur = localStorage.getItem(PREF_KEY) ?? '0';
+  document.querySelectorAll('.option input').forEach(inp=>inp.checked=false);
+  document.querySelector(`#opt${cur} input`)?.checked = true;
+  modal.dataset.selected = cur;
+}
+function closeModal(){ modal.style.display='none'; }
+
+/* Initial */
+(function init(){
+  if (!localStorage.getItem(PREF_KEY)){
+    // first visit -> show modal
+    openModal();
+  } else {
+    notifyPref = localStorage.getItem(PREF_KEY);
+    if (!loadHistory()) showRandomExample();
+  }
+})();
+
+/* Sending flow */
+sendBtn.addEventListener('click', doSend);
+userInput.addEventListener('keydown', (e)=>{ if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); doSend(); } });
+
+async function doSend(){
+  if (inFlight) return;
+  const txt = userInput.value.trim();
+  if (!txt) return;
+  // render user
+  renderMessage('user', txt);
+  userInput.value = '';
+  inFlight = true;
+
+  // typing placeholder
+  const placeholder = document.createElement('div');
+  placeholder.className = 'msg ai';
+  placeholder.textContent = 'Ucup sedang mengetik...';
+  chatWindow.appendChild(placeholder);
+  chatWindow.scrollTop = chatWindow.scrollHeight;
+
+  const resp = await callGemini(txt);
+
+  placeholder.remove();
+
+  if (resp && resp.__error){
+    // fallback
+    const fallback = generateFallback(txt);
+    typewriter('ai', fallback, 14, ()=>{ playNotifSound(); });
+    inFlight = false;
+    return;
+  }
+
+  try{
+    const candidate = resp?.candidates?.[0];
+    let out = '';
+    if (candidate && candidate.content && candidate.content.parts){
+      out = candidate.content.parts.map(p=>p.text).join('');
+    } else {
+      out = resp?.output?.[0]?.content?.[0]?.text || '';
+    }
+    if (!out || out.trim().length===0){
+      const fallback = generateFallback(txt);
+      typewriter('ai', fallback, 14, ()=>{ playNotifSound(); });
+    } else {
+      typewriter('ai', out, 14, ()=>{ playNotifSound(); });
+    }
+  }catch(e){
+    const fallback = generateFallback(txt);
+    typewriter('ai', fallback, 14, ()=>{ playNotifSound(); });
+  } finally {
+    inFlight = false;
+  }
+}
+</script>
+</body>
+</html>
